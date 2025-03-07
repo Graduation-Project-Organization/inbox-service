@@ -1,0 +1,186 @@
+{
+	"info": {
+		"_postman_id": "f07b6323-d62c-4075-975e-9ef3d46c66a3",
+		"name": "Inbox-service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40144557"
+	},
+	"item": [
+		{
+			"name": "Create-Message",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJEb2NGbG93IiwiaWF0IjoxNzQxMzA1MzIzLCJleHAiOjE3NzI4NDEzMjYsImF1ZCI6IkRvY0Zsb3cuY29tIiwic3ViIjoiRG9jRmxvdy5jb20iLCJpZCI6IjEyMzQ1Njc3ODkiLCJ1c2VybmFtZSI6Im1vaGFtZWQiLCJlbWFpbCI6Im1vaGFtZWRAZ21haWwuY29tIiwicm9sZSI6ImRvY3RvciJ9.tYdwrCbJgff2wB_sVR1TCHrk0p3SyFhfL_-wz-5SurI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"receiverId\": \"12345678\",\r\n    \"subject\": \"inbox service\",\r\n    \"body\": \"this service is created by Mohamed Mohsen\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/inbox/api/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"inbox",
+						"api",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get-Message",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJEb2NGbG93IiwiaWF0IjoxNzQxMzA1MzIzLCJleHAiOjE3NzI4NDEzMjYsImF1ZCI6IkRvY0Zsb3cuY29tIiwic3ViIjoiRG9jRmxvdy5jb20iLCJpZCI6IjEyMzQ1Njc3ODkiLCJ1c2VybmFtZSI6Im1vaGFtZWQiLCJlbWFpbCI6Im1vaGFtZWRAZ21haWwuY29tIiwicm9sZSI6ImRvY3RvciJ9.tYdwrCbJgff2wB_sVR1TCHrk0p3SyFhfL_-wz-5SurI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/inbox/api/get?messageId=6723ba77-63df-4615-80ed-f96dc41d36a6",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"inbox",
+						"api",
+						"get"
+					],
+					"query": [
+						{
+							"key": "messageId",
+							"value": "6723ba77-63df-4615-80ed-f96dc41d36a6"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get-All-Received-Messages",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJEb2NGbG93IiwiaWF0IjoxNzQxMzA1MzIzLCJleHAiOjE3NzI4NDEzMjYsImF1ZCI6IkRvY0Zsb3cuY29tIiwic3ViIjoiRG9jRmxvdy5jb20iLCJpZCI6IjEyMzQ1Njc3ODkiLCJ1c2VybmFtZSI6Im1vaGFtZWQiLCJlbWFpbCI6Im1vaGFtZWRAZ21haWwuY29tIiwicm9sZSI6ImRvY3RvciJ9.tYdwrCbJgff2wB_sVR1TCHrk0p3SyFhfL_-wz-5SurI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/inbox/api/received-messages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"inbox",
+						"api",
+						"received-messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get-All-Sent-Messages",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJEb2NGbG93IiwiaWF0IjoxNzQxMzA1MzIzLCJleHAiOjE3NzI4NDEzMjYsImF1ZCI6IkRvY0Zsb3cuY29tIiwic3ViIjoiRG9jRmxvdy5jb20iLCJpZCI6IjEyMzQ1Njc3ODkiLCJ1c2VybmFtZSI6Im1vaGFtZWQiLCJlbWFpbCI6Im1vaGFtZWRAZ21haWwuY29tIiwicm9sZSI6ImRvY3RvciJ9.tYdwrCbJgff2wB_sVR1TCHrk0p3SyFhfL_-wz-5SurI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/inbox/api/sent-messages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"inbox",
+						"api",
+						"sent-messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete-Message",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJEb2NGbG93IiwiaWF0IjoxNzQxMzA1MzIzLCJleHAiOjE3NzI4NDEzMjYsImF1ZCI6IkRvY0Zsb3cuY29tIiwic3ViIjoiRG9jRmxvdy5jb20iLCJpZCI6IjEyMzQ1Njc3ODkiLCJ1c2VybmFtZSI6Im1vaGFtZWQiLCJlbWFpbCI6Im1vaGFtZWRAZ21haWwuY29tIiwicm9sZSI6ImRvY3RvciJ9.tYdwrCbJgff2wB_sVR1TCHrk0p3SyFhfL_-wz-5SurI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/inbox/api/delete?messageId=15ddd9d1-e7cd-44a9-9c87-48eaf0190352",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"inbox",
+						"api",
+						"delete"
+					],
+					"query": [
+						{
+							"key": "messageId",
+							"value": "15ddd9d1-e7cd-44a9-9c87-48eaf0190352"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

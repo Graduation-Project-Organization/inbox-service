@@ -1,0 +1,11 @@
+server:
+    port: 8080
+
+spring:
+    main:
+        banner-mode: off
+    datasource:
+        url: jdbc:postgresql://localhost:5431/inbox
+        username: postgres
+        password: 748295
+        driver-class-name: org.postgresql.Driver
