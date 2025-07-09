@@ -4,8 +4,6 @@ server:
 spring:
     main:
         banner-mode: off
-    datasource:
-        url: jdbc:postgresql://localhost:5431/inbox
-        username: postgres
-        password: 748295
-        driver-class-name: org.postgresql.Driver
+    data:
+        mongodb:
+            uri: mongodb://admin:admin@localhost:27017/inbox?authSource=admin

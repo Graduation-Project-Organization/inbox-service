@@ -72,7 +72,7 @@ public class InboxController {
             }
     )
     @GetMapping("/get")
-    public ResponseEntity<MessageResponseDto> getMessage( @RequestParam @Size(min = 36, max = 36) String messageId) {
+    public ResponseEntity<MessageResponseDto> getMessage( @RequestParam @Size(min = 24, max = 24) String messageId) {
         // fetch the received messages
         MessageResponseDto messageResponseDto = inboxService.getMessage(messageId);
         // return the response

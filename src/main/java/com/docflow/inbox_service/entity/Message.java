@@ -1,54 +1,35 @@
 package com.docflow.inbox_service.entity;
 
-import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.FieldType;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "message")
-@EntityListeners(AuditingEntityListener.class) // to enable audit annotations
+@Document(collection = "message")
 @Getter @Setter @ToString
 @AllArgsConstructor @NoArgsConstructor
 public class Message {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "message_id")
     private String messageId;
 
-    @Column(name = "receiver_id")
     private String receiverId;
-
-    @Column(name = "sender_id")
     private String senderId;
-
-    @Column(name = "sender_name")
     private String senderName;
-
-    @Column(name = "sender_email")
     private String senderEmail;
-
-    @Column(name = "subject")
     private String subject;
-
-    @Column(name = "body")
     private String body;
 
-    @CreatedDate // set the date automatically
-    @Column(name = "created_at", updatable = false)
+    @CreatedDate
     private LocalDateTime createdAt;
 
-    @LastModifiedDate // set the date automatically
-    @Column(name = "updated_at", insertable = false)
-    private LocalDateTime updatedAt; // I don't find any importance for it till now
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
-    @Column(name = "is_deleted_by_sender")
     private boolean isDeletedBySender = false;
-
-    @Column(name = "is_deleted_by_receiver")
     private boolean isDeletedByReceiver = false;
-
 }

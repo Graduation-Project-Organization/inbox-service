@@ -24,16 +24,28 @@ import java.util.Set;
 public class JwtTokenValidator extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        // fetch jwt from the request
-        String jwt = request.getHeader("Authorization");
+        String jwt = null;
 
-        // validate logic
-        if (jwt != null && jwt.startsWith("Bearer ")) {
-            // fetch the token alone, remove "Bearer " prefix
-            jwt = jwt.substring(7);
+        // try to fetch token from header
+        String jwtHeader = request.getHeader("Authorization");
+        if (jwtHeader != null && jwtHeader.startsWith("Bearer ")) {
+            jwt = jwtHeader.substring(7); // remove "Bearer" prefix
+        }
 
-            // fetch the secret key and prepare it
-            Environment env = getEnvironment(); // fetch all environments variables
+        // if not in header, try to fetch token from cookies
+        if (jwt == null && request.getCookies() != null) {
+            for (var cookie: request.getCookies()) {
+                if ("jwt".equals(cookie.getName())) {
+                    jwt = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        // apply logic
+        if (jwt != null) {
+            // fetch secret key and prepare it
+            Environment env = getEnvironment();
             String secretValue = env.getProperty("JWT_SECRET");
             if (secretValue == null) {
                 throw new IllegalStateException("Internal Server Error: Unable to authentication");
@@ -41,26 +53,26 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             SecretKey secretKey = Keys.hmacShaKeyFor(secretValue.getBytes(StandardCharsets.UTF_8));
 
             try {
-                // build jwt parser, parse and validate the token, extract the payloads
+                // build jwt parser, parse and validate the token
                 Claims claims = Jwts.parser()
                         .verifyWith(secretKey)
                         .build()
                         .parseSignedClaims(jwt)
                         .getPayload();
 
-                // fetch the needed user information
+                // extract useful information from payloads
                 String id = String.valueOf(claims.get("id"));
                 String username = String.valueOf(claims.get("username"));
                 String email = String.valueOf(claims.get("email"));
                 String role = String.valueOf(claims.get("role"));
 
-                // hold these information in the context holder
-                // Also to inform spring security that the user already authenticated
+                // save this information in context holder to use it later
+                // and to inform spring security that the user already authenticated
                 UserPrincipal userPrincipal = new UserPrincipal(id, username, email, role);
                 Authentication auth = new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
-                // invoke the next filter
+                // invoke next filter
                 filterChain.doFilter(request, response);
 
             } catch (Exception ex) {
@@ -71,7 +83,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                 response.getWriter().close();
             }
 
-        } else {
+        } else { // if not in header or cookies
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write("{\"error\": \"Unauthorized: No token provided\"}");
