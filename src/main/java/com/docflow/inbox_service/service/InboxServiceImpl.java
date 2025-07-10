@@ -4,13 +4,17 @@ import com.docflow.inbox_service.config.UserPrincipal;
 import com.docflow.inbox_service.dto.MessageRequestDto;
 import com.docflow.inbox_service.dto.MessageResponseDto;
 import com.docflow.inbox_service.dto.MessageSummaryResponseDto;
+import com.docflow.inbox_service.dto.PageResponse;
 import com.docflow.inbox_service.entity.Message;
 import com.docflow.inbox_service.exception.MessageNotFound;
 import com.docflow.inbox_service.exception.UserNotFound;
 import com.docflow.inbox_service.exception.UserNotHavePermission;
 import com.docflow.inbox_service.mapper.InboxMapper;
+import com.docflow.inbox_service.mapper.PageMapper;
 import com.docflow.inbox_service.repository.MessageRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +27,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class InboxServiceImpl implements InboxService {
     private MessageRepository messageRepository;
+    private PageMapper pageMapper;
+    private InboxMapper inboxMapper;
 
     @Override
     public boolean createMessage(MessageRequestDto messageRequestDto) {
@@ -32,7 +38,7 @@ public class InboxServiceImpl implements InboxService {
         }
 
         // map the request message to actual message [the rest data is handled in the mapper]
-        Message newMessage = InboxMapper.mapToMessage(messageRequestDto, new Message());
+        Message newMessage = inboxMapper.mapToMessage(messageRequestDto, new Message());
 
         // save the message
         messageRepository.save(newMessage);
@@ -51,7 +57,7 @@ public class InboxServiceImpl implements InboxService {
         // check the user has the permissions to see the message.
         if ((userId.equals(message.getReceiverId())&& !(message.isDeletedByReceiver())) || (userId.equals(message.getSenderId()) && !(message.isDeletedBySender()))) {
             // map the message and return it
-            MessageResponseDto messageResponseDto = InboxMapper.mapToMessageResponseDto(message, new MessageResponseDto());
+            MessageResponseDto messageResponseDto = inboxMapper.mapToMessageResponseDto(message);
             return messageResponseDto;
         } else {
             throw new UserNotHavePermission(String.format("You don't have the permissions to get this message %s", messageId));
@@ -59,35 +65,20 @@ public class InboxServiceImpl implements InboxService {
     }
 
     @Override
-    public List<MessageSummaryResponseDto> getAllReceivedMessages() {
-        // catch the user id
+    public PageResponse<MessageSummaryResponseDto> getAllMessages(String status, Pageable pageable) {
+        // fetch the current user id
         String userId = getCurrentUserId();
-        // get all received messages
-        List<Message> allReceivedMessages = messageRepository.findAllByReceiverIdAndIsDeletedByReceiverFalseOrderByCreatedAtDesc(userId);
-        // map them to MessageResponseDto object
-        List<MessageSummaryResponseDto> allReceivedMessagesDto = new ArrayList<>();
-        if (allReceivedMessages != null) { // because stream may throw an error if the list empty
-            allReceivedMessagesDto = allReceivedMessages.stream()
-                    .map(message -> InboxMapper.mapToMessageSummaryResponseDto(message, new MessageSummaryResponseDto()))
-                    .collect(Collectors.toList());
-        }
-        return allReceivedMessagesDto;
-    }
 
-    @Override
-    public List<MessageSummaryResponseDto> getAllSentMessages() {
-        // get the current user id
-        String userId = getCurrentUserId();
-        // fetch all sent messages of the current user
-        List<Message> allSentMessages = messageRepository.findAllBySenderIdAndIsDeletedBySenderFalseOrderByCreatedAtDesc(userId);
-        // map the message object to messageResponseDto object
-        List<MessageSummaryResponseDto> allSentMessagesDto = new ArrayList<>();
-        if (allSentMessages != null) { // because stream may throw an error if the list empty
-            allSentMessagesDto = allSentMessages.stream()
-                    .map(message -> InboxMapper.mapToMessageSummaryResponseDto(message, new MessageSummaryResponseDto()))
-                    .collect(Collectors.toList());
+        // retrieve messages
+        Page<MessageSummaryResponseDto> messages;
+        if (status.equals("sent")) {
+            messages = messageRepository.findAllBySenderIdAndIsDeletedBySenderFalse(userId, pageable).map(inboxMapper::mapToMessageSummaryResponseDto);
+        } else {
+            messages = messageRepository.findAllByReceiverIdAndIsDeletedByReceiverFalse(userId, pageable).map(inboxMapper::mapToMessageSummaryResponseDto);
         }
-        return allSentMessagesDto;
+
+        // return messages
+        return pageMapper.toPageResponse(messages);
     }
 
     @Override
@@ -121,6 +112,3 @@ public class InboxServiceImpl implements InboxService {
         return true;
     }
 }
-
-// "1234567789"
-// Anything now

@@ -9,8 +9,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +32,7 @@ import java.util.List;
         description = "Internal Server Error",
         content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
 @RestController
-@RequestMapping(path = "inbox/api", produces = {MediaType.APPLICATION_JSON_VALUE})
+@RequestMapping(path = "/api", produces = {MediaType.APPLICATION_JSON_VALUE})
 @AllArgsConstructor
 @Validated
 public class InboxController {
@@ -82,25 +86,7 @@ public class InboxController {
                 .body(messageResponseDto);
     }
 
-    @Operation(
-            summary = "Get All Received Messages REST API",
-            description = "to get all the received messages",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "The messages fetched successfully"
-                    )
-            }
-    )
-    @GetMapping("/received-messages")
-    public ResponseEntity<List<MessageSummaryResponseDto>> getAllReceivedMessages() {
-        // fetch the received messages
-        List<MessageSummaryResponseDto> messageSummaryResponseDto = inboxService.getAllReceivedMessages();
-        // return the response
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(messageSummaryResponseDto);
-    }
+
 
     @Operation(
             summary = "Get All Sent Messages REST API",
@@ -112,14 +98,24 @@ public class InboxController {
                     )
             }
     )
-    @GetMapping("/sent-messages")
-    public ResponseEntity<List<MessageSummaryResponseDto>> getAllSentMessages() {
-        // fetch the received messages
-        List<MessageSummaryResponseDto> messageSummaryResponseDto = inboxService.getAllSentMessages();
+    @GetMapping("/inbox")
+    public ResponseEntity<PageResponse<MessageSummaryResponseDto>> getAllMessages(
+            @RequestParam(required = true) @Pattern(regexp = "sent|received", message = "value must be 'sent' or 'received'") String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "asc") @Pattern(regexp = "^(asc|desc)$", message = "Invalid sort value. Only 'asc' or 'desc' are allowed.") String sort
+    ) {
+        // configure pagination settings
+        Sort.Direction direction = sort.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, Math.min(size, 50), Sort.by(direction, "createdAt"));
+
+        // fetch messages
+        PageResponse<MessageSummaryResponseDto> messages = inboxService.getAllMessages(status, pageable);
+
         // return the response
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(messageSummaryResponseDto);
+                .body(messages);
     }
 
     @Operation(
@@ -136,7 +132,7 @@ public class InboxController {
                     )
             }
     )
-    @DeleteMapping("/delete")
+    @DeleteMapping("/inbox")
     public ResponseEntity<Void> deleteMessage(@RequestBody List<String> ids) {
         inboxService.deleteMessage(ids);
         return ResponseEntity.noContent().build();
