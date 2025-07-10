@@ -1,6 +1,7 @@
 package com.docflow.inbox_service.controller;
 
 import com.docflow.inbox_service.dto.*;
+import com.docflow.inbox_service.entity.Message;
 import com.docflow.inbox_service.service.InboxService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -136,16 +137,8 @@ public class InboxController {
             }
     )
     @DeleteMapping("/delete")
-    public ResponseEntity<ResponseDto> deleteMessage( @RequestParam @Size(min = 36, max = 36) String messageId) {
-        if (inboxService.deleteMessage(messageId)) {
-            return ResponseEntity
-                    .status(HttpStatus.NO_CONTENT)
-                    .body(new ResponseDto("204", "Message deleted successfully.")); // the message doesn't appear because you select "NO_CONTENT" status code.
-        } else {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ResponseDto("500", "An unexpected error occurred"));
-        }
+    public ResponseEntity<Void> deleteMessage(@RequestBody List<String> ids) {
+        inboxService.deleteMessage(ids);
+        return ResponseEntity.noContent().build();
     }
-
 }

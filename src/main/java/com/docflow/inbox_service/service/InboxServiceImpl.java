@@ -91,29 +91,25 @@ public class InboxServiceImpl implements InboxService {
     }
 
     @Override
-    public boolean deleteMessage(String messageId) {
-        // fetch the user id
+    public void deleteMessage(List<String> ids) {
+        // fetch user id
         String userId = getCurrentUserId();
 
-        // check the message exist or not
-        Message message = messageRepository.findById(messageId).orElseThrow(() -> new MessageNotFound(messageId));
+        // fetch messages
+        List<Message> messages = messageRepository.findAllById(ids);
 
-        // check the user has the permission to delete the image or not, and delete the image
-        if (userId.equals(message.getSenderId()) && !(message.isDeletedBySender())) {
-            message.setDeletedBySender(true);
-            messageRepository.save(message);
-        } else if (userId.equals(message.getReceiverId()) && !(message.isDeletedByReceiver())) {
-            message.setDeletedByReceiver(true);
-            messageRepository.save(message);
-        } else {
-            throw new UserNotHavePermission(String.format("You don't have the permissions to delete this message %s", messageId));
+        // validate the current user has the permissions to delete the message or not
+        for (Message message : messages) { // apply validation logic
+            if (userId.equals(message.getSenderId()) && !(message.isDeletedBySender())) {
+                message.setDeletedBySender(true); // soft deletion
+                messageRepository.save(message);
+            } else if (userId.equals(message.getReceiverId()) && !(message.isDeletedByReceiver())) {
+                message.setDeletedByReceiver(true); // soft deletion
+                messageRepository.save(message);
+            } else {
+                throw new UserNotHavePermission(String.format("You don't have the permissions to delete this message %s", message.getMessageId()));
+            }
         }
-
-        // delete the image ever if the both sides deleted it
-        if (message.isDeletedBySender() && message.isDeletedByReceiver()) {
-            messageRepository.deleteById(messageId);
-        }
-        return true;
     }
 
     private String getCurrentUserId() {

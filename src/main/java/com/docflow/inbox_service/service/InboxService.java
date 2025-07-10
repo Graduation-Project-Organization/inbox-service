@@ -16,6 +16,6 @@ public interface InboxService {
 
     List<MessageSummaryResponseDto> getAllSentMessages();
 
-    boolean deleteMessage(String messageId);
+    void deleteMessage(List<String> ids);
 }
 
