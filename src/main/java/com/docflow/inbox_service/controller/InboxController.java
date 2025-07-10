@@ -52,7 +52,7 @@ public class InboxController {
                     )
             }
     )
-    @PostMapping("/create")
+    @PostMapping("/inbox")
     public ResponseEntity<ResponseDto> createMessage(@Valid @RequestBody MessageRequestDto messageRequestDto) {
         if (inboxService.createMessage(messageRequestDto)) {
             return ResponseEntity
@@ -76,10 +76,10 @@ public class InboxController {
                     )
             }
     )
-    @GetMapping("/get")
-    public ResponseEntity<MessageResponseDto> getMessage( @RequestParam @Size(min = 24, max = 24) String messageId) {
+    @GetMapping("/inbox/{id}")
+    public ResponseEntity<MessageResponseDto> getMessage( @PathVariable @Size(min = 24, max = 24) String id) {
         // fetch the received messages
-        MessageResponseDto messageResponseDto = inboxService.getMessage(messageId);
+        MessageResponseDto messageResponseDto = inboxService.getMessage(id);
         // return the response
         return ResponseEntity
                 .status(HttpStatus.OK)
